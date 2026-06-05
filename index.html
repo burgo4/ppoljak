@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pavol Poljak</title>
+  <meta name="description" content="Father. Product builder. Manchester United believer.">
+
+  <!-- Open Graph (LinkedIn, Facebook, Slack previews) -->
+  <meta property="og:title" content="Pavol Poljak">
+  <meta property="og:description" content="Father. Product builder. Manchester United believer.">
+  <meta property="og:image" content="photo.jpg">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter/X card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pavol Poljak">
+  <meta name="twitter:description" content="Father. Product builder. Manchester United believer.">
+  <meta name="twitter:image" content="photo.jpg">
+  <meta name="twitter:site" content="@PoljakPavol">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { height: 100%; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d0010;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, #2d0a4e 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, #1a0533 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236b21a8' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      font-family: 'Barlow Condensed', sans-serif;
+      padding: 24px;
+    }
+
+    .scene {
+      width: min(380px, calc(100vw - 48px));
+      height: min(640px, calc((100vw - 48px) * 1.684));
+      perspective: 1200px;
+      cursor: pointer;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: none; /* tilt handled by RAF; flip overrides inline */
+      border-radius: 18px;
+      will-change: transform;
+    }
+
+    .card.flipping {
+      transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+      box-shadow:
+        0 25px 60px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(107, 33, 168, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    /* ── FRONT ── */
+    .front {
+      background: #f5f0ff;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .photo-area {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background-color: #fff;
+      /* no overflow:hidden here — badges need to escape */
+    }
+
+    .photo-clip {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .photo-clip img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: 50% 20%;
+      display: block;
+    }
+
+    /* Badge sits centered on the top-left corner of the photo frame */
+    .jersey-number {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 10;
+      background: #fff;
+      border-radius: 8px;
+      padding: 0px 8px 0px 8px;
+      font-size: 64px;
+      font-weight: 600;
+      color: #6B21A8;
+      line-height: 1;
+    }
+
+    .flag {
+      position: absolute;
+      bottom: 40.5px;
+      right: 0px;
+      z-index: 10;
+      transform: translateY(50%);
+      background: #fff;
+      border-radius: 8px 0 0 0;
+      padding: 7px 9px 0px 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flag img {
+      width: 88px;
+      height: auto;
+      border-radius: 0 0 8px 0;
+      display: block;
+    }
+
+    .card-bottom {
+      padding: 18px;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .player-name {
+      line-height: 1.05;
+      margin-bottom: 0;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(107,33,168,0.12);
+    }
+
+    .player-name .first {
+      display: block;
+      font-size: 30px;
+      font-weight: 700;
+      color: #6B21A8;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .player-name .last {
+      display: block;
+      font-size: 46px;
+      font-weight: 900;
+      color: #1a0533;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: -4px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-top: 20px;
+    }
+
+    .meta-item:last-child {
+      align-items: flex-end;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6B21A8;
+      margin-bottom: 6px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a0533;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .club-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .club-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .club-icon img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: block;
+    }
+
+    @keyframes pulse-hint {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .tap-hint {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9d5bc4;
+      margin-top: 10px;
+      animation: pulse-hint 2s ease-in-out infinite;
+    }
+
+    /* ── BACK ── */
+    .back {
+      background: #fff;
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .back-header {
+      background: linear-gradient(135deg, #1a0533 0%, #2d0a4e 100%);
+      padding: 18px 20px 14px;
+      border-bottom: 3px solid #6B21A8;
+    }
+
+    .back-number-name {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .back-number {
+      font-size: 42px;
+      font-weight: 900;
+      color: #6B21A8;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .back-name {
+      font-size: 30px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .back-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .tag-club {
+      background: rgba(107, 33, 168, 0.9);
+      color: #fff;
+    }
+
+    .tag-nation {
+      background: rgba(255,255,255,0.12);
+      color: #e0c8ff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── BACK BODY ── */
+    .back-body {
+      flex: 1;
+      padding: 20px 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .back-section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #6B21A8;
+      margin-bottom: 8px;
+    }
+
+    /* ABOUT */
+    .back-about-text {
+      font-size: 12.5px;
+      font-weight: 400;
+      color: #1a0533;
+      line-height: 1.55;
+      letter-spacing: 0.1px;
+    }
+
+    /* CAREER */
+    .career-row {
+      display: grid;
+      grid-template-columns: 1fr 68px;
+      align-items: center;
+      gap: 0;
+      padding: 5px 0;
+    }
+
+    .career-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .career-role {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1a0533;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      flex-shrink: 0;
+    }
+
+    .career-dots {
+      flex: 1;
+      border-bottom: 1px dashed rgba(107,33,168,0.25);
+      margin-bottom: 1px;
+      min-width: 8px;
+    }
+
+    .career-year {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6B21A8;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      text-align: right;
+    }
+
+    /* CONNECT */
+    .connect-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      text-decoration: none;
+      color: #1a0533;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: color 0.2s;
+    }
+
+    .connect-link:hover { color: #6B21A8; }
+
+    .connect-link svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      fill: #6B21A8;
+    }
+
+    .back-tap-hint {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9d5bc4;
+      padding: 10px 0 12px;
+      background: #fff;
+      animation: pulse-hint 2s ease-in-out infinite;
+    }
+
+    /* ── SHINE OVERLAY ── */
+    .card-shine {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background: radial-gradient(
+        circle at 50% 50%,
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.06) 40%,
+        transparent 70%
+      );
+    }
+
+    .scene:hover .card-shine {
+      opacity: 1;
+    }
+
+    /* Smooth tilt reset on leave */
+    .card.tilt-reset {
+      transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1) !important;
+    }
+
+    /* Animate bars when card is flipped */
+    .card.flipped .bar-fill { }
+
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .player-name .first { font-size: 24px; }
+      .player-name .last  { font-size: 36px; }
+      .meta-label         { font-size: 9px; }
+      .meta-value         { font-size: 12px; }
+      .back-name          { font-size: 24px; }
+      .back-about-text, .career-role, .connect-link { font-size: 11.5px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scene" id="scene" onclick="document.querySelector('.card').classList.toggle('flipped'); animateBars()">
+  <div class="card" id="card">
+
+    <!-- FRONT -->
+    <div class="card-face front">
+      <div class="photo-area">
+        <div class="photo-clip">
+          <img src="photo.jpg" alt="Pavol Poljak" />
+        </div>
+        <div class="flag">
+          <img src="slovakia.png" alt="Slovakia" />
+        </div>
+      </div>
+
+      <div class="card-bottom">
+        <div class="player-name">
+          <span class="first">Pavol</span>
+          <span class="last">Poljak</span>
+        </div>
+        <div class="meta-row">
+          <div class="meta-item">
+            <span class="meta-label">Current Club</span>
+            <div class="club-badge">
+              <div class="club-icon">
+                <img src="amplemarket-logo.svg" alt="Amplemarket" />
+              </div>
+              <span class="meta-value">Amplemarket</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Location</span>
+            <span class="meta-value">Žilina, SK</span>
+          </div>
+        </div>
+        <div class="tap-hint">↻ tap to flip</div>
+      </div>
+    </div>
+
+    <!-- BACK -->
+    <div class="card-face back">
+      <div class="back-header">
+        <div class="back-number-name">
+          <span class="back-name">Pavol Poljak</span>
+        </div>
+        <div class="back-tags">
+          <span class="tag tag-club" style="display:inline-flex;align-items:center;gap:5px;">
+            <img src="amplemarket-logo-white.svg" alt="Amplemarket" style="width:16px;height:16px;object-fit:contain;flex-shrink:0;" />Amplemarket
+          </span>
+          <span class="tag tag-nation">
+            <img src="slovakia.png" alt="Slovakia" style="width:22px;height:auto;border-radius:2px;display:block;" />
+            SVK
+          </span>
+        </div>
+      </div>
+
+      <div class="back-body">
+
+        <!-- ABOUT -->
+        <div>
+          <div class="back-section-label">About</div>
+          <p class="back-about-text">Father. Product builder. Manchester United believer.</p>
+          <p class="back-about-text" style="margin-top:6px;">Shaping how sales teams work smarter at Amplemarket. Started writing code, ended up shipping products people actually use.</p>
+        </div>
+
+        <!-- CAREER -->
+        <div>
+          <div class="back-section-label">Career</div>
+          <div class="career-row">
+            <div class="career-left"><span class="career-role">Product · Amplemarket</span><span class="career-dots"></span></div>
+            <span class="career-year">2025 – now</span>
+          </div>
+          <div class="career-row">
+            <div class="career-left"><span class="career-role">Product · Bloomreach</span><span class="career-dots"></span></div>
+            <span class="career-year">2020 – 2025</span>
+          </div>
+          <div class="career-row">
+            <div class="career-left"><span class="career-role">Engineering · Retailsoft</span><span class="career-dots"></span></div>
+            <span class="career-year">2017 – 2020</span>
+          </div>
+        </div>
+
+        <!-- CONNECT -->
+        <div>
+          <div class="back-section-label">Connect</div>
+          <a class="connect-link" href="https://linkedin.com/in/pavol-poljak" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.28V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+            linkedin.com/in/pavol-poljak
+          </a>
+          <a class="connect-link" href="https://x.com/PoljakPavol" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            x.com/PoljakPavol
+          </a>
+        </div>
+
+      </div>
+
+      <div class="back-tap-hint">↻ tap to flip</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── BAR ANIMATION ──
+  let barsAnimated = false;
+
+  function animateBars() {
+    if (barsAnimated) return;
+    const card = document.getElementById('card');
+    if (!card.classList.contains('flipped')) return;
+    barsAnimated = true;
+    document.querySelectorAll('.bar-fill').forEach((bar, i) => {
+      const val = parseInt(bar.dataset.val, 10);
+      setTimeout(() => { bar.style.width = val + '%'; }, 400 + i * 100);
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      document.querySelector('.card').classList.toggle('flipped');
+      animateBars();
+    }
+  });
+
+  // ── 3D TILT + SHINE ──
+  const scene = document.getElementById('scene');
+  const card  = document.getElementById('card');
+
+  // Inject one shine div per card face
+  document.querySelectorAll('.card-face').forEach(face => {
+    const shine = document.createElement('div');
+    shine.className = 'card-shine';
+    face.appendChild(shine);
+  });
+
+  const MAX_TILT = 12; // degrees
+  let isFlipping = false;
+  let rafId = null;
+  let targetRX = 0, targetRY = 0, currentRX = 0, currentRY = 0;
+  let isHovering = false;
+
+  // Intercept click — add .flipping for CSS transition, remove after
+  scene.addEventListener('click', () => {
+    isFlipping = true;
+    card.classList.add('flipping');
+    card.style.transform = ''; // let CSS transition take over
+    card.classList.toggle('flipped');
+    animateBars();
+    setTimeout(() => {
+      card.classList.remove('flipping');
+      isFlipping = false;
+    }, 750);
+  });
+
+  // Remove the inline onclick to avoid double-firing
+  scene.removeAttribute('onclick');
+
+  scene.addEventListener('mousemove', (e) => {
+    if (isFlipping) return;
+    isHovering = true;
+    const rect = scene.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;   // 0→1
+    const y = (e.clientY - rect.top)  / rect.height;  // 0→1
+    const nx = x * 2 - 1; // -1→1
+    const ny = y * 2 - 1;
+
+    targetRY =  nx * MAX_TILT;
+    targetRX = -ny * MAX_TILT;
+
+    // Move shine to follow cursor
+    document.querySelectorAll('.card-shine').forEach(shine => {
+      shine.style.background = `radial-gradient(
+        circle at ${x * 100}% ${y * 100}%,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.07) 40%,
+        transparent 68%
+      )`;
+    });
+
+    if (!rafId) animate();
+  });
+
+  scene.addEventListener('mouseleave', () => {
+    isHovering = false;
+    targetRX = 0;
+    targetRY = 0;
+    if (!rafId) animate();
+  });
+
+  function animate() {
+    const lerpFactor = isHovering ? 0.12 : 0.08;
+    currentRX += (targetRX - currentRX) * lerpFactor;
+    currentRY += (targetRY - currentRY) * lerpFactor;
+
+    const stillMoving = Math.abs(targetRX - currentRX) > 0.01 ||
+                        Math.abs(targetRY - currentRY) > 0.01;
+
+    if (!isFlipping) {
+      if (!card.classList.contains('flipped')) {
+        card.style.transform = `rotateX(${currentRX}deg) rotateY(${currentRY}deg)`;
+      } else {
+        // When flipped, the Y axis is mirrored — negate currentRY to keep tilt direction natural
+        card.style.transform = `rotateY(${180 - currentRY}deg) rotateX(${currentRX}deg)`;
+      }
+    }
+
+    if (stillMoving) {
+      rafId = requestAnimationFrame(animate);
+    } else {
+      rafId = null;
+      if (!isFlipping) {
+        if (!card.classList.contains('flipped')) {
+          card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        } else {
+          card.style.transform = `rotateY(180deg) rotateX(0deg)`;
+        }
+      }
+    }
+  }
+</script>
+</body>
+</html>
