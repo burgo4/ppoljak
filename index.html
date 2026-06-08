@@ -127,10 +127,11 @@
 
     .flag {
       position: absolute;
-      bottom: 40.5px;
+      /* No transform — parent backface-visibility now works in Safari.
+         bottom: 8px ≈ original bottom:40.5px + translateY(50%) with ~66px tall badge */
+      bottom: 8px;
       right: 0px;
       z-index: 10;
-      transform: translateY(50%);
       background: #fff;
       border-radius: 8px 0 0 0;
       padding: 7px 9px 0px 7px;
@@ -258,6 +259,7 @@
       display: flex;
       flex-direction: column;
       padding: 0;
+      z-index: 10;
     }
 
     .back-header {
@@ -448,14 +450,6 @@
       transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1) !important;
     }
 
-    .flag {
-      transition: visibility 0s linear 0.35s;
-    }
-
-    .card.flipped .flag {
-      visibility: hidden;
-      transition: visibility 0s linear 0.35s;
-    }
 
     @media (max-width: 420px) {
       body { padding: 16px; }
@@ -480,7 +474,7 @@
         <div class="photo-clip">
           <img src="photo.jpg" alt="Pavol Poljak" />
         </div>
-        <div class="flag">
+        <div class="flag" id="flag">
           <img src="slovakia.png" alt="Slovakia" />
         </div>
       </div>
@@ -616,7 +610,7 @@
   scene.addEventListener('click', () => {
     isFlipping = true;
     card.classList.add('flipping');
-    card.style.transform = ''; // let CSS transition take over
+    card.style.transform = '';
     card.classList.toggle('flipped');
     animateBars();
     setTimeout(() => {
