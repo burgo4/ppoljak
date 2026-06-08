@@ -448,8 +448,9 @@
       transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1) !important;
     }
 
-    /* Animate bars when card is flipped */
-    .card.flipped .bar-fill { }
+    .card.flipped .flag {
+      visibility: hidden;
+    }
 
     @media (max-width: 420px) {
       body { padding: 16px; }
